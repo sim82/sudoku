@@ -1,3 +1,17 @@
+/*
+ * Copyright (C) 2011 Simon A. Berger
+ * 
+ *  This program is free software; you may redistribute it and/or modify its
+ *  under the terms of the GNU General Public License as published by the Free
+ *  Software Foundation; either version 2 of the License, or (at your option)
+ *  any later version.
+ *
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ *  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ *  for more details.
+ */
+
 #include <vector>
 #include <boost/dynamic_bitset.hpp>
 #include <iostream>
@@ -139,12 +153,29 @@ public:
             
             for( int j = 0; j < 9; ++j, ++lit ) {
              
+                if( lit == line.end() ) {
+                 
+                    std::cerr << "line end too early: " << i << " " << j << "\n";
+                    throw std::runtime_error( "bailing out" );
+                }
+                
                 assert( lit != line.end() );
                 
                 if( *lit != ' ' ) {
                     assert( *lit >= '1' && *lit <= '9' );    
                     
                     int num = *lit - '1';
+                    
+                    if( num < 0 || num > 8 ) {
+                     
+                        std::cerr << "bad number in input: " << *lit << "\n";
+                        throw std::runtime_error( "bailing out" );
+                    }
+                    
+                    if( !geth(j)[num] || !getv(i)[num] || !getb(j,i)[num] ) {
+                        std::cerr << "inconsistent input: " << j << " " << i << " " << *lit << "\n";
+                        throw std::runtime_error( "bailing out" );
+                    }
                     
                     manipulate m(this, j, i, num );
                     m.commit();
